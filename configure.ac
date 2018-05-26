@@ -8,5 +8,6 @@ AC_PROG_RANLIB
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_FILES([
  Makefile
+ tests/Makefile
 ])
 AC_OUTPUT
