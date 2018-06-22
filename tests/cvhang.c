@@ -72,6 +72,7 @@ void usage(void)
 	printf("  -p(0,1)	0: don't use pi cond, 1: use pi cond (default 0)\n");
 }
 
+
 int dl_function_init()
 {
 	char *lib = "libpthread.so.0";
@@ -80,12 +81,26 @@ int dl_function_init()
 
 	void *dl_libpthread = dlopen(lib, RTLD_LAZY);
 	if (dl_libpthread) {
+		static const char *names[] = {
+			/* different versions of glibc patch use
+			   different names.
+			*/
+			"pthread_condattr_setprotocol",
+			"pthread_condattr_setprotocol_np"
+		};
+		const int NNames =(int)(sizeof(names)/sizeof(names[0]));
+		void *p;
 		dlerror();
-		*(void **)(&dl_pthread_condattr_setprotocol) = 
-			dlsym(dl_libpthread, "pthread_condattr_setprotocol_np");
-		error = dlerror();
-		if (error)
+		for (i = 0, p = NULL; i < NNames && p == NULL; i++) {
+			p = dlsym(dl_libpthread, names[i]);
+			error = dlerror();
+		}
+		if (p == NULL) {
 			fprintf(stderr, "%s\n", error);
+			ret = -1;
+		} else {
+			dl_pthread_conattr_setprotocol = p;
+		}
 		dlclose(dl_libpthread);
 
 	} else {

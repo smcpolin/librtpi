@@ -29,7 +29,24 @@ bindings (using the "Has a" vs. "Is a" inheritance model).
 	$ autoreconf --install
 	$ ./configure
 	$ make
-	$ ./test
+
+# Test
+There are three test programs included; the first, ./tests/test.c verifies that
+this library has been properly constructed and does not conflict with the
+runtime.
+
+Tests/cvhang.c requires patched versions of rt linux and glibc to support the
+setting the condvar protocol to support priority inheriting
+condvar.
+Cvhang constructs a test where the lack of priority inheritance across the
+condvar signal causes a failures due to priority inversion.
+
+Tests/cvperf.c measures the performance of the condvar operations
+to aid quantifying the effects of priority inheriting condvars.
+
+	$ ./tests/test
+	$ taskset -c 0 ./tests/cvhang -p0
+	$ taskset -c 0 ./tests/cvhang -p1
 
 # License and Copyright
 The Real-Time Priority Inheritance Library is licensed under the Lesser GNU
